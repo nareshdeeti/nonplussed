@@ -1,4 +1,8 @@
-import { ApplicationConfig, provideZoneChangeDetection } from "@angular/core";
+import {
+  ApplicationConfig,
+  importProvidersFrom,
+  provideZoneChangeDetection,
+} from "@angular/core";
 import { provideRouter, withDebugTracing } from "@angular/router";
 
 import { routes } from "./app.routes";
@@ -7,13 +11,20 @@ import {
   provideHttpClient,
   withInterceptors,
   withInterceptorsFromDi,
+  withXsrfConfiguration,
 } from "@angular/common/http";
 import { ApiInterceptor } from "./api.interceptor";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(
+      withInterceptorsFromDi(),
+      withXsrfConfiguration({
+        cookieName: "XSRF-TOKEN",
+        headerName: "X-XSRF-TOKEN",
+      }),
+    ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true },
   ],
