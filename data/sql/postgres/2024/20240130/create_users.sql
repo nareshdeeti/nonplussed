@@ -7,3 +7,6 @@ CREATE TABLE users (
 );
 
 
+ALTER TABLE users ADD usr_password varchar NULL;
+
+
