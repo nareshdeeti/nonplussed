@@ -1,5 +1,7 @@
-package com.deeti.nonplussed;
+package com.deeti.nonplussed.service;
 
+import com.deeti.nonplussed.model.AuthorizationConsent;
+import com.deeti.nonplussed.repository.AuthorizationConsentRepository;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,15 +9,16 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;
 
-//@Component
+@Service
 public class JpaOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {
+
     private final AuthorizationConsentRepository authorizationConsentRepository;
     private final RegisteredClientRepository registeredClientRepository;
 

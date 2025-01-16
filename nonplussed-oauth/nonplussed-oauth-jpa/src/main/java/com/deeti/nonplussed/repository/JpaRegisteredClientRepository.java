@@ -1,8 +1,10 @@
-package com.deeti.nonplussed;
+package com.deeti.nonplussed.repository;
 
+import com.deeti.nonplussed.model.Client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -20,7 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//@Component
+@Component
+@ConditionalOnProperty(prefix = "nonplussed", value = "init-user", havingValue = "false")
 public class JpaRegisteredClientRepository implements RegisteredClientRepository {
 
     private final ClientRepository clientRepository;

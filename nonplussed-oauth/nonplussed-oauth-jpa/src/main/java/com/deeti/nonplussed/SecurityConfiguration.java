@@ -1,22 +1,21 @@
 package com.deeti.nonplussed;
 
+import com.deeti.nonplussed.repository.ClientRepository;
+import com.deeti.nonplussed.repository.JpaRegisteredClientRepository;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -24,14 +23,9 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -46,7 +40,7 @@ public class SecurityConfiguration {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain asSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain oauthSecurityFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         return http.build();
     }
@@ -66,9 +60,10 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder(14);
     }
 
-    //    Not necessary if you have dynamic registration, It can be commentable
+    // Not necessary if you have dynamic registration
     @Bean
-    public JpaRegisteredClientRepository registeredClientRepository(ClientRepository clientRepository) {
+    @ConditionalOnProperty(prefix = "nonplussed", value = "init-user", havingValue = "true")
+    JpaRegisteredClientRepository registeredClientRepository(ClientRepository clientRepository) {
         RegisteredClient messagingClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("nonplussed")
                 .clientSecret(passwordEncoder().encode("nonplussed"))
@@ -88,19 +83,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public JpaOAuth2AuthorizationService authorizationService(AuthorizationRepository authorizationRepository,
-                                                              RegisteredClientRepository registeredClientRepository) {
-        return new JpaOAuth2AuthorizationService(authorizationRepository, registeredClientRepository);
-    }
-
-    @Bean
-    public JpaOAuth2AuthorizationConsentService authorizationConsentService(AuthorizationConsentRepository authorizationConsentRepository,
-                                                                            RegisteredClientRepository registeredClientRepository) {
-        return new JpaOAuth2AuthorizationConsentService(authorizationConsentRepository, registeredClientRepository);
-    }
-
-    @Bean
-    public JWKSource<SecurityContext> jwkSource() {
+    JWKSource<SecurityContext> jwkSource() {
         KeyPair keyPair = generateRsaKey();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
@@ -125,12 +108,12 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+    JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
     }
 
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
+    AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().build();
     }
 

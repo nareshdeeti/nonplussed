@@ -1,5 +1,6 @@
-package com.deeti.nonplussed;
+package com.deeti.nonplussed.repository;
 
+import com.deeti.nonplussed.model.AuthorizationConsent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
