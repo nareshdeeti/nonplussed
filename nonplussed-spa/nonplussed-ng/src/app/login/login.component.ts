@@ -29,10 +29,9 @@ export class LoginComponent {
   ) {
     this.buildForm();
     this.http
-      .get<any>("http://localhost:8011/nonplussed/csrf")
+      .get<any>("http://localhost:8011/csrf")
       .subscribe((response) => {
         this.csrfToken = response.token;
-        window.localStorage.setItem("csrfToken", this.csrfToken);
         console.log("csrfToken: " + this.csrfToken);
       });
   }
@@ -46,16 +45,7 @@ export class LoginComponent {
 
   login() {
     const creds = this.loginForm.value;
-    this.auth.authenticate(creds, () => {
-      this.router.navigateByUrl("/home");
-    });
-
-    /* const httpParams = new HttpParams();
-    httpParams.set("username", creds['username']);
-    httpParams.set("password", creds['password']);
-
-    const headers = new HttpHeaders({'Content-Type': 'application/x-www-form-urlencoded'});
-    this.http.post("http://localhost:8011/nonplussed/login", headers, {observe: "body"})
-    .subscribe(res => console.log(res)); */
+    this.auth.authenticate(creds);
   }
+
 }

@@ -1,22 +1,18 @@
-import {
-  HttpClient,
-  HttpEvent,
-  HttpHandler,
-  HttpInterceptor,
-  HttpRequest,
-} from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import {HttpEvent, HttpHandlerFn, HttpHeaders, HttpRequest} from "@angular/common/http";
+import {Observable} from "rxjs";
+import {environment} from "./environment";
 
-@Injectable()
-export class ApiInterceptor implements HttpInterceptor {
-  constructor(private http: HttpClient) {}
-
-  intercept(req: HttpRequest<any>, next: HttpHandler) {
-    const xhr = req.clone({
-      headers: req.headers.set("X-Requested-With", "XMLHttpRequest"),
-    });
-    // return next.handle(xhr);
-    return next.handle(req);
-  }
+export function withCredentialsInterceptor(request: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
+  const csrfToken = document.cookie
+      .split(';')
+      .find(cookie => cookie.trim().startsWith('XSRF-TOKEN='));
+    console.log('csrfToken: ' + csrfToken);
+    let csrfTokenValue = csrfToken ? csrfToken.split('=')[1] : '';
+    let csrfHeader = request.headers.set('X-XSRF-TOKEN', csrfTokenValue);
+  request = request.clone({
+    url: request.url,
+    withCredentials: true,
+    headers: csrfHeader   // This is required to ensure the Session Cookie is passed in every request to the Backend
+  });
+  return next(request);
 }

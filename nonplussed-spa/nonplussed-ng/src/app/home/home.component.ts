@@ -1,7 +1,5 @@
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Component } from "@angular/core";
-import { LoginComponent } from "../login/login.component";
-import { AuthenticationService } from "../authentication.service";
 
 @Component({
   selector: "app-home",
@@ -11,19 +9,12 @@ import { AuthenticationService } from "../authentication.service";
   styleUrl: "./home.component.scss",
 })
 export class HomeComponent {
+
+  username: string = '';
+
   constructor(private http: HttpClient) {
-
-    /* let headers = new HttpHeaders();
-    headers.set('X-XSRF-TOKEN', AuthenticationService.csrfToken); */
-    let params = new HttpParams();
-    params.set('_csrf', AuthenticationService.csrfToken);
-    console.log("csrf " + window.localStorage.getItem('csrfToken'));
-
-    http
-      // .get("http://localhost:8011/nonplussed/logged-user?_csrf="+window.localStorage.getItem('csrfToken'))
-      // .get("http://localhost:8011/nonplussed/logged-user", {withCredentials: true})
-      .get("http://localhost:8011/nonplussed/logged-user")
-
-      .subscribe((res) => console.log(res));
+    http.get<any>("http://localhost:8011/users/me", {observe: 'response'})
+      .subscribe((res) => this.username = res.body.username);
   }
+
 }

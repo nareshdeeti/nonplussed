@@ -1,4 +1,4 @@
-package com.deeti.nonplussed;
+package com.deeti.nonplussed.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,9 +13,11 @@ public class CsrfCookieFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-        CsrfToken csrf = (CsrfToken) request.getAttribute("_csrf");
+        CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         csrf.getToken();
         filterChain.doFilter(request, response);
     }
