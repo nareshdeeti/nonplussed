@@ -1,2 +1,2 @@
 # nonplussed
-Security Configurations 
+Basic Security configuration sample(s)
